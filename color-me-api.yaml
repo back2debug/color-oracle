@@ -1,0 +1,396 @@
+openapi: 3.1.0
+info:
+  title: Color Me API
+  version: 1.0.0
+  description: |
+    APIs that make tech more human.
+
+    **Color Whisperer** tells you your color season and palette based on any color you throw at it.
+
+    Built by TM · Support Engineer Portfolio Project
+
+servers:
+  - url: https://api.colorme.dev/v1
+    description: Production
+
+tags:
+  - name: Color Whisperer
+    description: Color season analysis and palette generation
+
+paths:
+
+  /palette:
+    post:
+      tags:
+        - Color Whisperer
+      summary: Analyze a color
+      description: |
+        Send any color as a hex code, RGB value, or plain name like "dusty rose" and get back your color season, a description, and a curated 5-color palette that flatters it.
+
+        Great for designers, stylists, or anyone who has ever stared at a paint swatch and felt nothing.
+      operationId: analyzeColor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ColorRequest'
+            examples:
+              hex:
+                summary: Hex code
+                value:
+                  color: "#C4A882"
+              rgb:
+                summary: RGB value
+                value:
+                  color: "rgb(196, 168, 130)"
+              name:
+                summary: Color name
+                value:
+                  color: "dusty rose"
+      responses:
+        '200':
+          description: Color analysis returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaletteResponse'
+              example:
+                color_input: "#C4A882"
+                hex_normalized: "#C4A882"
+                season: "Warm Autumn"
+                vibe: "Think golden hour, aged leather, and a cup of tea that's been sitting just long enough. Earthy, grounded, quietly luxurious."
+                undertone: "warm"
+                palette:
+                  - hex: "#C4A882"
+                    name: "Camel"
+                    role: "Base"
+                  - hex: "#8B5E3C"
+                    name: "Cognac"
+                    role: "Anchor"
+                  - hex: "#D4B896"
+                    name: "Sand Dollar"
+                    role: "Light"
+                  - hex: "#6B4C2A"
+                    name: "Chocolate"
+                    role: "Depth"
+                  - hex: "#E8D5B7"
+                    name: "Linen"
+                    role: "Highlight"
+        '400':
+          description: Could not parse the color input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "unparseable_color"
+                message: "We couldn't figure out what color 'viridian nightmare' is. Try a hex code, RGB, or a plain color name."
+        '422':
+          description: Input was valid but color analysis failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /palette/scan:
+    post:
+      tags:
+        - Color Whisperer
+      summary: Scan an image for color analysis
+      description: |
+        Upload a photo of any item — a sweater, a paint chip, a scarf, a couch cushion — and Color Whisperer will:
+
+        1. **Identify the dominant color** of the item in the image
+        2. **Determine the color season** it belongs to
+        3. **Give you a verdict** on whether it works for that season
+        4. **Return a full palette** of complementary colors
+
+        Perfect for when you're out shopping and forgot your color swatches.
+
+        **Supported formats:** JPEG, PNG, GIF  
+        **Max file size:** 5MB
+      operationId: scanImage
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Photo of the item to analyze
+      responses:
+        '200':
+          description: Image analyzed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageScanResponse'
+              example:
+                item_description: "a rust-orange knit sweater"
+                dominant_color_name: "rust orange"
+                hex_normalized: "#B5451B"
+                season: "Warm Autumn"
+                season_match: "yes"
+                verdict: "This is peak Warm Autumn energy — wear it everywhere. Pair it with camel, olive, or dark brown and you're unstoppable."
+                vibe: "Think golden hour, aged leather, and a cup of tea that's been sitting just long enough. Earthy, grounded, quietly luxurious."
+                undertone: "warm"
+                palette:
+                  - hex: "#B5451B"
+                    name: "Rust"
+                    role: "Base"
+                  - hex: "#6B2D0E"
+                    name: "Mahogany"
+                    role: "Anchor"
+                  - hex: "#D4845A"
+                    name: "Terracotta"
+                    role: "Light"
+                  - hex: "#3D1A08"
+                    name: "Dark Espresso"
+                    role: "Depth"
+                  - hex: "#E8C4A0"
+                    name: "Peach Linen"
+                    role: "Highlight"
+        '400':
+          description: Invalid image or unsupported format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                unsupported_format:
+                  summary: Unsupported file type
+                  value:
+                    error: "unsupported_format"
+                    message: "We only accept JPEG, PNG, or GIF images. You sent: image/bmp"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '413':
+          description: Image exceeds the 5MB size limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "file_too_large"
+                message: "That image is 7.2MB. Please keep it under 5MB."
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /palette/seasons:
+    get:
+      tags:
+        - Color Whisperer
+      summary: List all color seasons
+      description: Returns all supported color seasons with descriptions and signature colors. Useful for building UI pickers or understanding the full seasonal color system.
+      operationId: listSeasons
+      responses:
+        '200':
+          description: List of color seasons
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeasonsResponse'
+              example:
+                seasons:
+                  - id: "warm-autumn"
+                    name: "Warm Autumn"
+                    description: "Rich, muted, earthy tones with golden undertones."
+                    signature_colors: ["#C4A882", "#8B5E3C", "#556B2F"]
+                  - id: "cool-winter"
+                    name: "Cool Winter"
+                    description: "High contrast, cool, and clear. Think black, white, and icy jewel tones."
+                    signature_colors: ["#1C1C2E", "#E8E8F0", "#4169E1"]
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  schemas:
+
+    ColorRequest:
+      type: object
+      required:
+        - color
+      properties:
+        color:
+          type: string
+          description: The color to analyze. Accepts hex codes (`#C4A882`), RGB values (`rgb(196, 168, 130)`), or plain color names (`dusty rose`, `navy`, `terracotta`).
+          example: "#C4A882"
+
+    PaletteResponse:
+      type: object
+      properties:
+        color_input:
+          type: string
+          description: The original color you sent
+        hex_normalized:
+          type: string
+          description: Your color converted to a hex code
+          pattern: '^#[0-9A-Fa-f]{6}$'
+        season:
+          type: string
+          description: Your color season
+          enum:
+            - Warm Spring
+            - Light Spring
+            - Bright Spring
+            - Warm Autumn
+            - Deep Autumn
+            - Soft Autumn
+            - Cool Winter
+            - Deep Winter
+            - Bright Winter
+            - Cool Summer
+            - Light Summer
+            - Soft Summer
+        vibe:
+          type: string
+          description: A description of the season
+        undertone:
+          type: string
+          enum: [warm, cool, neutral]
+        palette:
+          type: array
+          description: A curated 5-color palette that works with your color
+          items:
+            $ref: '#/components/schemas/PaletteColor'
+
+    PaletteColor:
+      type: object
+      properties:
+        hex:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+        name:
+          type: string
+        role:
+          type: string
+          enum: [Base, Anchor, Light, Depth, Highlight]
+
+    SeasonsResponse:
+      type: object
+      properties:
+        seasons:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              signature_colors:
+                type: array
+                items:
+                  type: string
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Explanation of what went wrong
+
+    ImageScanResponse:
+      type: object
+      properties:
+        item_description:
+          type: string
+          description: A short description of what was detected in the image (e.g. "a rust-orange knit sweater")
+        dominant_color_name:
+          type: string
+          description: Plain English name of the dominant color found
+        hex_normalized:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+          description: The dominant color as a hex code
+        season:
+          type: string
+          description: The detected color season
+          enum:
+            - Warm Spring
+            - Light Spring
+            - Bright Spring
+            - Warm Autumn
+            - Deep Autumn
+            - Soft Autumn
+            - Cool Winter
+            - Deep Winter
+            - Bright Winter
+            - Cool Summer
+            - Light Summer
+            - Soft Summer
+        season_match:
+          type: string
+          enum: [yes, maybe, no]
+          description: How well this item's color fits the detected season
+        verdict:
+          type: string
+          description: A direct, friendly verdict on whether this item works for the season
+        vibe:
+          type: string
+          description: A description of the season
+        undertone:
+          type: string
+          enum: [warm, cool, neutral]
+        palette:
+          type: array
+          description: A curated 5-color palette that works with the detected color
+          items:
+            $ref: '#/components/schemas/PaletteColor'
+
+  responses:
+    Unauthorized:
+      description: Invalid API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "invalid_api_key"
+            message: "That API key didn't check out. Double-check it and try again."
+    RateLimited:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "rate_limited"
+            message: "You've hit the limit. Take a breath, then try again in 60 seconds."
+    ServerError:
+      description: Something went wrong on our end
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "internal_error"
+            message: "Something broke on our end. We're on it."
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Your Color Whisperer API key. Include it in every request header.
+
+security:
+  - ApiKeyAuth: []
