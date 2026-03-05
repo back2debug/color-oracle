@@ -266,15 +266,4 @@ curl -X POST http://localhost:8000/v1/palette \
 
 ---
 
-## Deploying to Render
-
-1. Push your repo to GitHub
-2. Go to [render.com](https://render.com) → **New Web Service**
-3. Connect your repo
-4. Set the start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. Add environment variables: `ANTHROPIC_API_KEY`, `VALID_API_KEYS`, `ENVIRONMENT=production`
-6. Deploy 🚀
-
----
-
 Built with FastAPI · Powered by Claude · Made with 🎨 by Tracey Martin.
