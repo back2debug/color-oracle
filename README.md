@@ -2,7 +2,7 @@
 
 > Send a color. Get your season, your vibe, and a palette that actually makes sense.
 
-Color Whisperer is a REST API that takes any color input (hex, RGB, plain English or image) and returns a seasonal color analysis powered by Claude AI. Built as a project for a Support Engineer role at Readme.
+Color Whisperer is a REST API that takes any color input (hex, RGB, plain English or image) and returns a seasonal color analysis powered by Claude AI.
 
 ---
 
@@ -59,8 +59,7 @@ Every request requires an API key passed in the `X-API-Key` header.
 
 | Scenario | Status | Error Code |
 |---|---|---|
-| No header sent | `401 Unauthorized` | `missing_api_key` |
-| Invalid key | `403 Forbidden` | `invalid_api_key` |
+| No header sent | `401 Unauthorized` | `invalid_api_key` |
 | Valid key | ✅ Request proceeds | — |
 
 ---
