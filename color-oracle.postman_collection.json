@@ -1,0 +1,368 @@
+{
+  "info": {
+    "name": "Color Oracle API",
+    "description": "Send a color, get back your season, vibe, and a curated palette. Includes image scanning via /palette/scan.\n\nSet the following environment variables before running:\n- `base_url` — e.g. http://localhost:8000 or https://your-app.onrender.com\n- `api_key` — your X-API-Key value",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "description": "Base URL — switch to your Render URL for production"
+    },
+    {
+      "key": "api_key",
+      "value": "dev-key-local",
+      "description": "Your X-API-Key value"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/",
+            "description": "Basic health check. Should return status: ok."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns ok status', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.status).to.eql('ok');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health",
+            "description": "Lightweight health check for uptime monitoring."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns ok status', () => {",
+                  "  pm.expect(pm.response.json().status).to.eql('ok');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "No API Key — expect 401",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/v1/palette/seasons",
+            "description": "Request with no X-API-Key header. Should return 401."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Error code is missing_api_key', () => {",
+                  "  pm.expect(pm.response.json().detail.error).to.eql('missing_api_key');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid API Key — expect 403",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/v1/palette/seasons",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "this-is-not-a-real-key"
+              }
+            ],
+            "description": "Request with a bad API key. Should return 403."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Error code is invalid_api_key', () => {",
+                  "  pm.expect(pm.response.json().detail.error).to.eql('invalid_api_key');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Color Oracle",
+      "item": [
+        {
+          "name": "GET /v1/palette/seasons",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/v1/palette/seasons",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "description": "Returns all 12 color seasons with descriptions and signature colors."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns 12 seasons', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.seasons).to.be.an('array').with.lengthOf(12);",
+                  "});",
+                  "pm.test('Each season has required fields', () => {",
+                  "  pm.response.json().seasons.forEach(season => {",
+                  "    pm.expect(season).to.have.property('id');",
+                  "    pm.expect(season).to.have.property('name');",
+                  "    pm.expect(season).to.have.property('description');",
+                  "    pm.expect(season).to.have.property('signature_colors');",
+                  "  });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /v1/palette — hex code",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/v1/palette",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"color\": \"#C4A882\"\n}"
+            },
+            "description": "Analyze a color by hex code."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response has required fields', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('season');",
+                  "  pm.expect(json).to.have.property('vibe');",
+                  "  pm.expect(json).to.have.property('undertone');",
+                  "  pm.expect(json).to.have.property('palette');",
+                  "  pm.expect(json).to.have.property('hex_normalized');",
+                  "});",
+                  "pm.test('Palette has 5 colors', () => {",
+                  "  pm.expect(pm.response.json().palette).to.have.lengthOf(5);",
+                  "});",
+                  "pm.test('Undertone is valid', () => {",
+                  "  const valid = ['warm', 'cool', 'neutral'];",
+                  "  pm.expect(valid).to.include(pm.response.json().undertone);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /v1/palette — plain name",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/v1/palette",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"color\": \"dusty rose\"\n}"
+            },
+            "description": "Analyze a color by plain name."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('hex_normalized is valid hex', () => {",
+                  "  const hex = pm.response.json().hex_normalized;",
+                  "  pm.expect(hex).to.match(/^#[0-9A-Fa-f]{6}$/);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /v1/palette — RGB value",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/v1/palette",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"color\": \"rgb(196, 168, 130)\"\n}"
+            },
+            "description": "Analyze a color by RGB value."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /v1/palette — missing color field",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/v1/palette",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "description": "Missing required color field — should return 422."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 422', () => pm.response.to.have.status(422));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /v1/palette/scan — unsupported format",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/v1/palette/scan",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Upload a .bmp or other unsupported file to test this"
+                }
+              ]
+            },
+            "description": "Upload an unsupported image format — should return 400 unsupported_format.\n\nTo test: attach a .bmp file or change the content-type manually."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Error is unsupported_format', () => {",
+                  "  pm.expect(pm.response.json().detail.error).to.eql('unsupported_format');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
