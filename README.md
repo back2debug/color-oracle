@@ -16,7 +16,6 @@ Color Whisperer is a REST API that takes any color input (hex, RGB, plain Englis
   - [GET /v1/palette/seasons](#get-v1paletteseasons)
 - [Error Reference](#error-reference)
 - [Running Locally](#running-locally)
-- [Deploying to Render](#deploying-to-render)
 
 ---
 
