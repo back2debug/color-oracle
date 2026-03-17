@@ -265,7 +265,7 @@ curl -X POST http://localhost:8000/v1/palette \
 
 ---
 
-## Running Postman Collection
+## Running Postman
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v18+)
