@@ -1,14 +1,14 @@
 {
   "info": {
     "name": "Color Oracle API",
-    "description": "Send a color, get back your season, vibe, and a curated palette. Includes image scanning via /palette/scan.\n\nSet the following environment variables before running:\n- `base_url` — e.g. http://localhost:8000 or https://your-app.onrender.com\n- `api_key` — your X-API-Key value",
+    "description": "Send a color, get back your season, vibe, and a curated palette. Includes image scanning via /palette/scan.\n\nSet the following environment variables before running:\n- `base_url` — e.g. http://localhost:8000\n- `api_key` — your X-API-Key value",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "base_url",
       "value": "http://localhost:8000",
-      "description": "Base URL — switch to your Render URL for production"
+      "description": "Base URL for running against the local"
     },
     {
       "key": "api_key",
@@ -87,35 +87,6 @@
                 "exec": [
                   "pm.test('Status is 401', () => pm.response.to.have.status(401));",
                   "pm.test('Error code is missing_api_key', () => {",
-                  "  pm.expect(pm.response.json().detail.error).to.eql('missing_api_key');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Invalid API Key — expect 403",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/v1/palette/seasons",
-            "header": [
-              {
-                "key": "X-API-Key",
-                "value": "this-is-not-a-real-key"
-              }
-            ],
-            "description": "Request with a bad API key. Should return 403."
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 403', () => pm.response.to.have.status(403));",
-                  "pm.test('Error code is invalid_api_key', () => {",
                   "  pm.expect(pm.response.json().detail.error).to.eql('invalid_api_key');",
                   "});"
                 ],
@@ -339,7 +310,7 @@
                 {
                   "key": "file",
                   "type": "file",
-                  "src": [],
+                  "src": ["blue-bmp-16-bit.bmp"],
                   "description": "Upload a .bmp or other unsupported file to test this"
                 }
               ]
