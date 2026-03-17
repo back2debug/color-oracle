@@ -2,10 +2,10 @@
 Unit tests for Color Oracle API.
 
 Run with:
-    pytest tests/ -v
+    python -m pytest tests/ -v
 
 To run without making real Anthropic API calls (recommended for CI):
-    pytest tests/ -v  (mocking is built in for all Claude calls)
+    python -m pytest tests/ -v  (mocking is built in for all Claude calls)
 """
 
 import io
