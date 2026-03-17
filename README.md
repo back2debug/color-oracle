@@ -16,6 +16,7 @@ Color Whisperer is a REST API that takes any color input (hex, RGB, plain Englis
   - [GET /v1/palette/seasons](#get-v1paletteseasons)
 - [Error Reference](#error-reference)
 - [Running Locally](#running-locally)
+- [Running Postman Collection](#running-postman)
 
 ---
 
@@ -262,6 +263,18 @@ curl -X POST http://localhost:8000/v1/palette \
   -d '{"color": "dusty rose"}'
 ```
 
+---
+
+## Running Postman Collection
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18+)
+- Newman: `npm install -g newman`
+
+### Run the collection
+```bash
+newman run color-oracle.postman_collection.json -verbose
+```
 ---
 
 Built with FastAPI · Powered by Claude · Made with 🎨 by Tracey Martin.
