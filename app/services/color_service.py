@@ -41,7 +41,7 @@ def analyze_color(color_input: str) -> PaletteResponse:
     Returns a PaletteResponse object.
     """
     message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=1000,
         system=SYSTEM_PROMPT,
         messages=[
@@ -116,7 +116,7 @@ def analyze_image(image_bytes: bytes, media_type: str) -> "ImageScanResponse":
     image_b64 = base64.standard_b64encode(image_bytes).decode("utf-8")
 
     message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=1200,
         system=IMAGE_SCAN_PROMPT,
         messages=[
