@@ -250,7 +250,7 @@ cp .env.example .env
 # you'd rather use the shell-level COLOR_ORACLE_API_KEY (next step).
 
 # 5. Export your local API key (one-time setup)
-echo 'export COLOR_ORACLE_API_KEY="REDACTED"' >> ~/.bashrc
+echo 'export COLOR_ORACLE_API_KEY="your-local-key-here"' >> ~/.bashrc
 source ~/.bashrc
 
 # 6. Run the server
