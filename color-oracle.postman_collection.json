@@ -12,8 +12,8 @@
     },
     {
       "key": "api_key",
-      "value": "REDACTED",
-      "description": "Your X-API-Key value"
+      "value": "",
+      "description": "Your X-API-Key value — set this from your $COLOR_ORACLE_API_KEY shell variable"
     }
   ],
   "item": [

@@ -10,6 +10,7 @@ To run without making real Anthropic API calls (recommended for CI):
 
 import io
 import json
+import os
 import pytest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
@@ -18,7 +19,7 @@ from app.models import PaletteResponse, PaletteColor, ImageScanResponse
 
 client = TestClient(app)
 
-VALID_KEY = "REDACTED"
+VALID_KEY = os.environ["COLOR_ORACLE_API_KEY"]
 INVALID_KEY = "not-a-real-key"
 
 # Real Pydantic objects — FastAPI serializes these correctly

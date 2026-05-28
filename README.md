@@ -246,9 +246,14 @@ pip install -r requirements.txt
 
 # 4. Set up environment variables
 cp .env.example .env
-# Edit .env with your ANTHROPIC_API_KEY and VALID_API_KEYS
+# Edit .env with your ANTHROPIC_API_KEY. Leave VALID_API_KEYS blank if
+# you'd rather use the shell-level COLOR_ORACLE_API_KEY (next step).
 
-# 5. Run the server
+# 5. Export your local API key (one-time setup)
+echo 'export COLOR_ORACLE_API_KEY="REDACTED"' >> ~/.bashrc
+source ~/.bashrc
+
+# 6. Run the server
 uvicorn app.main:app --reload
 ```
 
@@ -258,7 +263,7 @@ Interactive docs at `http://localhost:8000/docs`.
 **Test it:**
 ```bash
 curl -X POST http://localhost:8000/v1/palette \
-  -H "X-API-Key: REDACTED" \
+  -H "X-API-Key: $COLOR_ORACLE_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"color": "dusty rose"}'
 ```
