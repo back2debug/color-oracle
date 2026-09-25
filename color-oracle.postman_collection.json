@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Color Oracle API",
-    "description": "Send a color, get back your season, vibe, and a curated palette. Includes image scanning via /palette/scan.\n\nSet the following environment variables before running:\n- `base_url` — e.g. http://localhost:8000\n- `api_key` — your X-API-Key value",
+    "description": "Send a color, get back your season, vibe, and a curated palette. Includes image scanning via /palette/scan.\n\nSet the following environment variables before running:\n- `base_url` — e.g. http://localhost:8000\n- `api_key` — a key from VALID_API_KEYS in your .env",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -13,7 +13,7 @@
     {
       "key": "api_key",
       "value": "",
-      "description": "Your X-API-Key value — set this from your $COLOR_ORACLE_API_KEY shell variable"
+      "description": "X-API-Key sent with each request — must be one of the keys in VALID_API_KEYS in your .env. Pass it with --env-var api_key=your-api-key"
     }
   ],
   "item": [

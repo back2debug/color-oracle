@@ -7,7 +7,9 @@ from app.models import PaletteResponse, ImageScanResponse
 
 client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
 
-SYSTEM_PROMPT = """You are Color Whisperer, an expert in seasonal color analysis and color theory.
+MODEL = "claude-sonnet-4-6"
+
+SYSTEM_PROMPT = """You are Color Oracle, an expert in seasonal color analysis and color theory.
 
 When given a color, you analyze it and return a JSON object with the following structure. 
 Return ONLY valid JSON, no markdown, no explanation, no backticks.
@@ -41,7 +43,7 @@ def analyze_color(color_input: str) -> PaletteResponse:
     Returns a PaletteResponse object.
     """
     message = client.messages.create(
-        model="claude-sonnet-4-6",
+        model=MODEL,
         max_tokens=1000,
         system=SYSTEM_PROMPT,
         messages=[
@@ -70,7 +72,7 @@ def analyze_color(color_input: str) -> PaletteResponse:
     )
 
 
-IMAGE_SCAN_PROMPT = """You are Color Whisperer, an expert in seasonal color analysis and color theory.
+IMAGE_SCAN_PROMPT = """You are Color Oracle, an expert in seasonal color analysis and color theory.
 
 The user has uploaded a photo of an item — clothing, fabric, an accessory, a paint chip, anything with color.
 
@@ -116,7 +118,7 @@ def analyze_image(image_bytes: bytes, media_type: str) -> "ImageScanResponse":
     image_b64 = base64.standard_b64encode(image_bytes).decode("utf-8")
 
     message = client.messages.create(
-        model="claude-sonnet-4-6",
+        model=MODEL,
         max_tokens=1200,
         system=IMAGE_SCAN_PROMPT,
         messages=[
