@@ -1,8 +1,8 @@
-# 🎨 Color Whisperer API
+# 🎨 Color Oracle API
 
 > Send a color. Get your season, your vibe, and a palette that actually makes sense.
 
-Color Whisperer is a REST API that takes any color input (hex, RGB, plain English or image) and returns a seasonal color analysis powered by Claude AI.
+Color Oracle is a REST API that takes any color input (hex, RGB, plain English or image) and returns a seasonal color analysis powered by Claude AI.
 
 ---
 
@@ -16,14 +16,16 @@ Color Whisperer is a REST API that takes any color input (hex, RGB, plain Englis
   - [GET /v1/palette/seasons](#get-v1paletteseasons)
 - [Error Reference](#error-reference)
 - [Running Locally](#running-locally)
-- [Running Postman Collection](#running-postman)
+- [Running Postman](#running-postman)
 
 ---
 
 ## Quickstart
 
+> `api.example.com` is a placeholder — there is no hosted instance. Run the API locally (see [Running Locally](#running-locally)) and use `http://localhost:8000` instead.
+
 ```bash
-curl -X POST https://api.colorme.dev/v1/palette \
+curl -X POST https://api.example.com/v1/palette \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{"color": "#C4A882"}'
@@ -51,7 +53,7 @@ curl -X POST https://api.colorme.dev/v1/palette \
 
 ## Authentication
 
-Every request requires an API key passed in the `X-API-Key` header.
+Every request requires an API key passed in the `X-API-Key` header. The server accepts any key listed in `VALID_API_KEYS` in your `.env` (comma-separated), so add your own key there.
 
 ```bash
 -H "X-API-Key: your-api-key"
@@ -59,7 +61,7 @@ Every request requires an API key passed in the `X-API-Key` header.
 
 | Scenario | Status | Error Code |
 |---|---|---|
-| No header sent | `401 Unauthorized` | `invalid_api_key` |
+| No header sent, or key not recognized | `401 Unauthorized` | `invalid_api_key` |
 | Valid key | ✅ Request proceeds | — |
 
 ---
@@ -82,8 +84,6 @@ Analyze a color and get back the season, vibe, and palette.
 { "color": "#C4A882" }         // hex
 { "color": "rgb(196,168,130)" } // rgb
 { "color": "dusty rose" }       // plain name
-{ "color": "terracotta" }       // plain name
-{ "color": "navy" }             // plain name
 ```
 
 #### Response Body
@@ -115,7 +115,7 @@ Analyze a color and get back the season, vibe, and palette.
 
 ### POST /v1/palette/scan
 
-Upload a photo of any item and Color Whisperer will identify the dominant color, determine the season, and tell you whether it works perfect for when you're out shopping and forgot your color swatches.
+Upload a photo of any item and Color Oracle will identify the dominant color, determine the season, and tell you whether it works perfect for when you're out shopping and forgot your color swatches.
 
 **Supported formats:** JPEG, PNG, GIF  
 **Max file size:** 5MB  
@@ -128,7 +128,7 @@ Upload a photo of any item and Color Whisperer will identify the dominant color,
 | `file` | file | ✅ | Photo of the item to analyze |
 
 ```bash
-curl -X POST https://api.colorme.dev/v1/palette/scan \
+curl -X POST https://api.example.com/v1/palette/scan \
   -H "X-API-Key: your-api-key" \
   -F "file=@/path/to/your/photo.jpg"
 ```
@@ -139,7 +139,7 @@ Includes everything from `/v1/palette`, plus:
 
 | Field | Type | Description |
 |---|---|---|
-| `item_description` | string | What Color Whisperer sees in the image (e.g. "a rust-orange knit sweater") |
+| `item_description` | string | What Color Oracle sees in the image (e.g. "a rust-orange knit sweater") |
 | `dominant_color_name` | string | Plain English name of the main color detected |
 | `season_match` | string | `yes`, `maybe`, or `no` — does this item fit the detected season? |
 | `verdict` | string | A direct, friendly answer on whether this item works for the season |
@@ -170,8 +170,10 @@ Includes everything from `/v1/palette`, plus:
 
 ```json
 {
-  "error": "unsupported_format",
-  "message": "We only accept JPEG, PNG, or GIF images. You sent: image/bmp"
+  "detail": {
+    "error": "unsupported_format",
+    "message": "We only accept JPEG, PNG, or GIF images. You sent: image/bmp"
+  }
 }
 ```
 
@@ -179,8 +181,10 @@ Includes everything from `/v1/palette`, plus:
 
 ```json
 {
-  "error": "file_too_large",
-  "message": "That image is 7.2MB. Please keep it under 5MB."
+  "detail": {
+    "error": "file_too_large",
+    "message": "That image is 7.2MB. Please keep it under 5MB."
+  }
 }
 ```
 
@@ -209,12 +213,14 @@ Returns all 12 color seasons with descriptions and signature colors.
 
 ## Error Reference
 
-All errors return a consistent shape:
+All errors return a consistent shape, wrapped in FastAPI's `detail` field:
 
 ```json
 {
-  "error": "http status code",
-  "message": "A explanation of what went wrong."
+  "detail": {
+    "error": "invalid_api_key",
+    "message": "An explanation of what went wrong."
+  }
 }
 ```
 
@@ -222,8 +228,9 @@ All errors return a consistent shape:
 |---|---|---|
 | `400` | `unparseable_color` | We couldn't figure out what color you sent |
 | `400` | `unsupported_format` | Image format is not JPEG, PNG, or GIF |
-| `401` | `invalid_api_key` | No `X-API-Key` header found |
+| `401` | `invalid_api_key` | `X-API-Key` header missing or not recognized |
 | `413` | `file_too_large` | Image exceeds the 5MB limit |
+| `500` | `parse_error` | The analysis came back in an unexpected format — retry |
 | `500` | `internal_error` | Something broke on our end |
 
 ---
@@ -234,7 +241,7 @@ All errors return a consistent shape:
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/yourusername/color-oracle
+git clone https://github.com/back2debug/color-oracle
 cd color-oracle
 
 # 2. Create a virtual environment
@@ -246,14 +253,11 @@ pip install -r requirements.txt
 
 # 4. Set up environment variables
 cp .env.example .env
-# Edit .env with your ANTHROPIC_API_KEY. Leave VALID_API_KEYS blank if
-# you'd rather use the shell-level COLOR_ORACLE_API_KEY (next step).
+# Edit .env:
+#   ANTHROPIC_API_KEY=<your Anthropic key>
+#   VALID_API_KEYS=<your API key>   (comma-separated if you want more than one)
 
-# 5. Export your local API key (one-time setup)
-echo 'export COLOR_ORACLE_API_KEY="your-local-key-here"' >> ~/.bashrc
-source ~/.bashrc
-
-# 6. Run the server
+# 5. Run the server
 uvicorn app.main:app --reload
 ```
 
@@ -263,7 +267,7 @@ Interactive docs at `http://localhost:8000/docs`.
 **Test it:**
 ```bash
 curl -X POST http://localhost:8000/v1/palette \
-  -H "X-API-Key: $COLOR_ORACLE_API_KEY" \
+  -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{"color": "dusty rose"}'
 ```
@@ -277,9 +281,17 @@ curl -X POST http://localhost:8000/v1/palette \
 - Newman: `npm install -g newman`
 
 ### Run the collection
+
+With the server running, pass one of the keys from `VALID_API_KEYS` in your `.env`:
+
 ```bash
-newman run color-oracle.postman_collection.json -verbose
+newman run color-oracle.postman_collection.json --env-var api_key=your-api-key --verbose
 ```
+
+The palette requests call Claude, so `ANTHROPIC_API_KEY` in `.env` must be a real key.
+
+> The pytest suite needs no key setup. `tests/conftest.py` sets `VALID_API_KEYS=test-api-key` for the in-process test client.
+
 ---
 
 Built with FastAPI · Powered by Claude · Made with 🎨 by Tracey Martin.
