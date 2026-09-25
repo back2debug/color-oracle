@@ -344,7 +344,7 @@
     },
     "info": {
         "description": "Send any color, get back your season, vibe, and a curated palette.",
-        "title": "Color Whisperer API",
+        "title": "Color Oracle API",
         "version": "1.0.0"
     },
     "openapi": "3.1.0",
@@ -390,7 +390,7 @@
         "/v1/palette": {
             "post": {
                 "description": "Send any color \u2014 as a hex code, RGB value, or plain name like **dusty rose** \u2014 and get back:\n- Your **color season** (one of 12 seasonal archetypes)\n- A **description** written like a seasoned analyst, not a spec sheet\n- Your color's **undertone** (warm, cool, or neutral)\n- A curated **5-color palette** that flatters your color\n\nGreat for designers, stylists, or anyone who has ever stared at a paint swatch and felt nothing.",
-                "operationId": "analyze_v1_palette_post",
+                "operationId": "analyze_palette_v1_palette_post",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -460,13 +460,13 @@
                 ],
                 "summary": "Analyze a color",
                 "tags": [
-                    "Color Whisperer"
+                    "Color Oracle"
                 ]
             }
         },
         "/v1/palette/scan": {
             "post": {
-                "description": "Upload a photo of any item \u2014 a sweater, a paint chip, a scarf, a couch cushion \u2014 and Color Whisperer will:\n\n1. **Identify the dominant color** of the item in the image\n2. **Determine the color season** it belongs to\n3. **Give you a verdict** on whether it works for that season\n4. **Return a full palette** of complementary colors\n\nPerfect for when you're out shopping and forgot your color swatches.\n\n**Supported formats:** JPEG, PNG, GIF  \n**Max file size:** 5MB",
+                "description": "Upload a photo of any item \u2014 a sweater, a paint chip, a scarf, a couch cushion \u2014 and Color Oracle will:\n\n1. **Identify the dominant color** of the item in the image\n2. **Determine the color season** it belongs to\n3. **Give you a verdict** on whether it works for that season\n4. **Return a full palette** of complementary colors\n\nPerfect for when you're out shopping and forgot your color swatches.\n\n**Supported formats:** JPEG, PNG, GIF  \n**Max file size:** 5MB",
                 "operationId": "scan_image_v1_palette_scan_post",
                 "requestBody": {
                     "content": {
@@ -547,7 +547,7 @@
                 ],
                 "summary": "Scan an image for color analysis",
                 "tags": [
-                    "Color Whisperer"
+                    "Color Oracle"
                 ]
             }
         },
@@ -584,7 +584,7 @@
                 ],
                 "summary": "List all color seasons",
                 "tags": [
-                    "Color Whisperer"
+                    "Color Oracle"
                 ]
             }
         }

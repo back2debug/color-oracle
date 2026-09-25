@@ -5,3 +5,4 @@ __pycache__/
 .color/
 color/
 .DS_Store
+.hypothesis/
