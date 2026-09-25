@@ -19,7 +19,7 @@ from app.models import PaletteResponse, PaletteColor, ImageScanResponse
 
 client = TestClient(app)
 
-VALID_KEY = os.environ["COLOR_ORACLE_API_KEY"]
+VALID_KEY = "test-api-key"
 INVALID_KEY = "not-a-real-key"
 
 # Real Pydantic objects — FastAPI serializes these correctly

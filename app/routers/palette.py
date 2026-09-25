@@ -4,7 +4,7 @@ from app.auth import require_api_key
 from app.models import ColorRequest, PaletteResponse, SeasonsResponse, ErrorResponse, ImageScanResponse
 from app.services.color_service import analyze_color, analyze_image
 
-router = APIRouter(tags=["Color Whisperer"])
+router = APIRouter(tags=["Color Oracle"])
 
 SEASONS_DATA = [
     {
@@ -101,7 +101,7 @@ Send any color — as a hex code, RGB value, or plain name like **dusty rose** �
 Great for designers, stylists, or anyone who has ever stared at a paint swatch and felt nothing.
     """,
 )
-async def analyze(
+async def analyze_palette(
     body: ColorRequest,
     _: str = Depends(require_api_key),
 ):
@@ -124,8 +124,7 @@ async def analyze(
                 "message": f"We couldn't figure out what color '{body.color}' is. Try a hex code, RGB value, or a plain color name like 'dusty rose'.",
             },
         )
-    except Exception as e:
-        print(f"ERROR: {type(e).__name__}: {e}")
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
@@ -133,14 +132,6 @@ async def analyze(
                 "message": "Something broke on our end. We're on it.",
             },
         )
-    # except Exception as e:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-    #         detail={
-    #             "error": "internal_error",
-    #             "message": "Something broke on our end. We're on it.",
-    #         },
-    #     )
 
 
 @router.get(
@@ -171,7 +162,7 @@ MAX_FILE_SIZE_MB = 5
     },
     summary="Scan an image for color analysis",
     description="""
-Upload a photo of any item — a sweater, a paint chip, a scarf, a couch cushion — and Color Whisperer will:
+Upload a photo of any item — a sweater, a paint chip, a scarf, a couch cushion — and Color Oracle will:
 
 1. **Identify the dominant color** of the item in the image
 2. **Determine the color season** it belongs to
